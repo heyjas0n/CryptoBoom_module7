@@ -206,7 +206,7 @@ public class MainActivity extends TrackingActivity {
     }
 
 
-    private class CoinModel {
+    private static class CoinModel {
         public final String name;
         public final String symbol;
         public final String imageUrl;

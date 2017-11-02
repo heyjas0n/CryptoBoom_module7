@@ -27,8 +27,10 @@ public class Tracker implements LifecycleObserver {
     private final String TRACKING_URL = "https://www.google.com";
     private final RequestQueue mQueue;
     private final String mOsVersion;
+    private final Context mCon;
 
     public Tracker(Context con) {
+        mCon=con;
         mOsVersion = Build.VERSION.RELEASE;
         mQueue = Volley.newRequestQueue(con);
         ((AppCompatActivity) con).getLifecycle().addObserver(this);
@@ -60,7 +62,9 @@ public class Tracker implements LifecycleObserver {
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     public void trackOnDestroy() {
         Log.d(TAG, "trackOnDestroy() called");
+        ((AppCompatActivity)mCon).getLifecycle().removeObserver(this);
         mQueue.add(generateTrackingStringRequest("destroy"));
+        Lifecycle.State currentState=((AppCompatActivity)mCon).getLifecycle().getCurrentState();
 
     }
 
