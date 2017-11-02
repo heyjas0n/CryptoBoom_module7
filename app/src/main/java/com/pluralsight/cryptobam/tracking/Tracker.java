@@ -1,7 +1,11 @@
 package com.pluralsight.cryptobam.tracking;
 
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
 import android.os.Build;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
@@ -18,7 +22,7 @@ import java.util.HashMap;
  * Created by omrierez on 02.11.17.
  */
 
-public class Tracker {
+public class Tracker implements LifecycleObserver {
     private static final String TAG = Tracker.class.getSimpleName();
     private final String TRACKING_URL = "https://www.google.com";
     private final RequestQueue mQueue;
@@ -27,6 +31,7 @@ public class Tracker {
     public Tracker(Context con) {
         mOsVersion = Build.VERSION.RELEASE;
         mQueue = Volley.newRequestQueue(con);
+        ((AppCompatActivity) con).getLifecycle().addObserver(this);
     }
 
     private StringRequest generateTrackingStringRequest(final String eventName) {
@@ -46,37 +51,43 @@ public class Tracker {
         };
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     public void trackOnCreate() {
-
+        Log.d(TAG, "trackOnCreate() called");
         mQueue.add(generateTrackingStringRequest("create"));
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     public void trackOnDestroy() {
-
+        Log.d(TAG, "trackOnDestroy() called");
         mQueue.add(generateTrackingStringRequest("destroy"));
 
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void trackOnStart() {
-
+        Log.d(TAG, "trackOnStart() called");
         mQueue.add(generateTrackingStringRequest("start"));
 
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     public void trackOnResume() {
-
+        Log.d(TAG, "trackOnResume() called");
         mQueue.add(generateTrackingStringRequest("resume"));
 
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     public void trackOnPause() {
-
+        Log.d(TAG, "trackOnPause() called");
         mQueue.add(generateTrackingStringRequest("pause"));
 
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void trackOnStop() {
-
+        Log.d(TAG, "trackOnStop() called");
         mQueue.add(generateTrackingStringRequest("stop"));
 
     }

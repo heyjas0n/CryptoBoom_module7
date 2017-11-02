@@ -41,7 +41,6 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.pluralsight.cryptobam.entities.CryptoCoinEntity;
-import com.pluralsight.cryptobam.tracking.Tracker;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -68,8 +67,6 @@ public class MainActivity extends TrackingActivity {
         setContentView(R.layout.activity_main);
         bindViews();
         fetchData();
-        mTracker = new Tracker(this);
-        mTracker.trackOnCreate();
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         checkLocationPermission();
 
@@ -77,35 +74,6 @@ public class MainActivity extends TrackingActivity {
 
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mTracker.trackOnStart();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mTracker.trackOnResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mTracker.trackOnPause();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mTracker.trackOnStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mTracker.trackOnDestroy();
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
