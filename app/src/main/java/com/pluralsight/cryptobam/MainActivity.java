@@ -7,7 +7,6 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,7 +15,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -30,11 +28,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -46,10 +41,10 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.pluralsight.cryptobam.entities.CryptoCoinEntity;
+import com.pluralsight.cryptobam.tracking.Tracker;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -58,17 +53,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends TrackingActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private RecyclerView recView;
     private MyCryptoAdapter mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private Tracker mTracker;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -338,81 +330,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    ///////////////////////////////////////////////////////////////////////////////////////////TRACKING CODE/////////////////////////////////////////////////////////////////////////////////////
-
-
-    static class Tracker {
-
-        private static final String TAG = Tracker.class.getSimpleName();
-        private final String TRACKING_URL = "https://www.google.com";
-        private final Context con;
-        private final RequestQueue mQueue;
-        private final String mOsVersion;
-
-        public Tracker(Context con) {
-            this.con = con;
-            mOsVersion = Build.VERSION.RELEASE;
-            mQueue = Volley.newRequestQueue(con);
-
-        }
-
-        private StringRequest generateTrackingStringRequest(final String eventName) {
-            return new StringRequest(Request.Method.POST, TRACKING_URL,
-                    response -> {
-                        Log.d(TAG, "onResponse() called with: response = [" + response + "]");
-
-                    },
-                    error -> Log.d(TAG, "onErrorResponse() called with: error = [" + error + "]")) {
-                @Override
-                public byte[] getBody() throws AuthFailureError {
-                    HashMap<String, String> params = new HashMap<>();
-                    params.put("eventName", eventName);
-                    params.put("osVersion", mOsVersion);
-                    return new JSONObject(params).toString().getBytes();
-                }
-            };
-        }
-
-        public void trackOnCreate() {
-
-            mQueue.add(generateTrackingStringRequest("create"));
-        }
-
-        public void trackOnDestroy() {
-
-            mQueue.add(generateTrackingStringRequest("destroy"));
-
-        }
-
-        public void trackOnStart() {
-
-            mQueue.add(generateTrackingStringRequest("start"));
-
-        }
-
-        public void trackOnResume() {
-
-            mQueue.add(generateTrackingStringRequest("resume"));
-
-        }
-
-        public void trackOnPause() {
-
-            mQueue.add(generateTrackingStringRequest("pause"));
-
-        }
-
-        public void trackOnStop() {
-
-            mQueue.add(generateTrackingStringRequest("stop"));
-
-        }
-
-        public void trackLocation(int lat, int lng) {
-            mQueue.add(generateTrackingStringRequest("location\t" + lat + "-" + lng));
-
-        }
-    }
 
     ////////////////////////////////////////////////////////////////////////////////////LOCATION RELATED CODE/////////////////////////////////////////////////////////////////////////////////////
     private final static int PERMISSION_REQUEST_LOCATION =1234;
