@@ -71,7 +71,6 @@ public class MainActivity extends TrackingActivity {
         checkLocationPermission();
 
 
-
     }
 
 
@@ -172,15 +171,8 @@ public class MainActivity extends TrackingActivity {
 
         public void setItems(List<CoinModel> items) {
             this.mItems.clear();
+            this.mItems.addAll(items);
             notifyDataSetChanged();
-            for (int i = 0; i < items.size(); i++) {
-                final int position = i;
-                final CoinModel item = items.get(i);
-                mHandler.postDelayed(() -> {
-                    mItems.add(position, item);
-                    notifyItemInserted(position);
-                }, 10 * i);
-            }
 
         }
 
@@ -298,13 +290,13 @@ public class MainActivity extends TrackingActivity {
     }
 
 
-
     ////////////////////////////////////////////////////////////////////////////////////LOCATION RELATED CODE/////////////////////////////////////////////////////////////////////////////////////
-    private final static int PERMISSION_REQUEST_LOCATION =1234;
+    private final static int PERMISSION_REQUEST_LOCATION = 1234;
 
     private FusedLocationProviderClient mFusedLocationClient;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
+
     private void checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -312,15 +304,16 @@ public class MainActivity extends TrackingActivity {
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
-                    Toast.makeText(this,"Please give me location permissions",Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please give me location permissions", Toast.LENGTH_SHORT).show();
             } else {
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        PERMISSION_REQUEST_LOCATION );
+                        PERMISSION_REQUEST_LOCATION);
             }
         }
     }
+
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
@@ -385,7 +378,7 @@ public class MainActivity extends TrackingActivity {
                     // functionality that depends on this permission.
                     ActivityCompat.requestPermissions(this,
                             new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                            PERMISSION_REQUEST_LOCATION );
+                            PERMISSION_REQUEST_LOCATION);
                 }
                 return;
             }
