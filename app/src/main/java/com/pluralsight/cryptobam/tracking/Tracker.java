@@ -24,7 +24,7 @@ import java.util.HashMap;
 
 public class Tracker implements LifecycleObserver {
     private static final String TAG = Tracker.class.getSimpleName();
-    private final String TRACKING_URL = "https://www.google.com";
+    private final String TRACKING_URL = "https://httpbin.org/post";
     private final RequestQueue mQueue;
     private final String mOsVersion;
     private final Context mCon;
