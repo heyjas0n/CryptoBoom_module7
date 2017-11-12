@@ -3,12 +3,9 @@ package com.pluralsight.cryptobam;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -19,19 +16,13 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
-import com.bumptech.glide.Glide;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -41,6 +32,9 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.pluralsight.cryptobam.entities.CryptoCoinEntity;
+import com.pluralsight.cryptobam.recview.CoinModel;
+import com.pluralsight.cryptobam.recview.Divider;
+import com.pluralsight.cryptobam.recview.MyCryptoAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -114,104 +108,13 @@ public class MainActivity extends TrackingActivity {
         fab.setOnClickListener(view -> recView.smoothScrollToPosition(0));
     }
 
-    public class Divider extends RecyclerView.ItemDecoration {
-        private Drawable mDivider;
-
-        public Divider(Context context) {
-            mDivider = context.getResources().getDrawable(R.drawable.list_divider);
-        }
-
-        @Override
-        public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
-            int left = parent.getPaddingLeft();
-            int right = parent.getWidth() - parent.getPaddingRight();
-
-            int childCount = parent.getChildCount();
-            for (int i = 0; i < childCount; i++) {
-                View child = parent.getChildAt(i);
-
-                RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
-
-                int top = child.getBottom() + params.bottomMargin;
-                int bottom = top + mDivider.getIntrinsicHeight();
-
-                mDivider.setBounds(left, top, right, bottom);
-                mDivider.draw(c);
-            }
-        }
-    }
-
-    private static class MyCryptoAdapter extends RecyclerView.Adapter<MyCryptoAdapter.CoinViewHolder> {
-
-        List<CoinModel> mItems = new ArrayList<>();
-        public final String STR_TEMPLATE_NAME = "%s\t\t\t\t\t\t%s";
-        public final String STR_TEMPLATE_PRICE = "%s$\t\t\t\t\t\t24H Volume:\t\t\t%s$";
-        private final Handler mHandler = new Handler();
+  
 
 
-        @Override
-        public void onBindViewHolder(CoinViewHolder holder, int position) {
-            final CoinModel model = mItems.get(position);
-            holder.tvNameAndSymbol.setText(String.format(STR_TEMPLATE_NAME, model.name, model.symbol));
-            holder.tvPriceAndVolume.setText(String.format(STR_TEMPLATE_PRICE, model.priceUsd, model.volume24H));
-            Glide.with(holder.ivIcon).load(model.imageUrl).into(holder.ivIcon);
-        }
-
-        @Override
-        public CoinViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
-            return new CoinViewHolder(LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.list_item, parent, false));
-        }
-
-        @Override
-        public int getItemCount() {
-            return mItems.size();
-        }
-
-        public void setItems(List<CoinModel> items) {
-            this.mItems.clear();
-            this.mItems.addAll(items);
-            notifyDataSetChanged();
-
-        }
-
-
-        class CoinViewHolder extends RecyclerView.ViewHolder {
-
-            TextView tvNameAndSymbol;
-            TextView tvPriceAndVolume;
-            ImageView ivIcon;
-
-            public CoinViewHolder(View itemView) {
-                super(itemView);
-                tvNameAndSymbol = itemView.findViewById(R.id.tvNameAndSymbol);
-                tvPriceAndVolume = itemView.findViewById(R.id.tvPriceAndVolume);
-                ivIcon = itemView.findViewById(R.id.ivIcon);
-            }
-        }
-    }
 
 
     private void showErrorToast(String error) {
         Toast.makeText(this, "Error:" + error, Toast.LENGTH_SHORT).show();
-    }
-
-
-    private static class CoinModel {
-        public final String name;
-        public final String symbol;
-        public final String imageUrl;
-        public final String priceUsd;
-        public final String volume24H;
-
-        public CoinModel(String name, String symbol, String imageUrl, String priceUsd, String volume24H) {
-            this.name = name;
-            this.symbol = symbol;
-            this.imageUrl = imageUrl;
-            this.priceUsd = priceUsd;
-            this.volume24H = volume24H;
-        }
     }
 
 
