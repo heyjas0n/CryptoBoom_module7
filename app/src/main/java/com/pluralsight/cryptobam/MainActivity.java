@@ -1,16 +1,9 @@
 package com.pluralsight.cryptobam;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Looper;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,16 +14,11 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
 import com.pluralsight.cryptobam.entities.CryptoCoinEntity;
 import com.pluralsight.cryptobam.recview.CoinModel;
 import com.pluralsight.cryptobam.recview.Divider;
@@ -61,18 +49,13 @@ public class MainActivity extends LocationActivity {
         setContentView(R.layout.activity_main);
         bindViews();
         fetchData();
-
-
     }
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -100,31 +83,20 @@ public class MainActivity extends LocationActivity {
         recView.setLayoutManager(lm);
         recView.setAdapter(mAdapter);
         recView.addItemDecoration(new Divider(this));
-
         setSupportActionBar(toolbar);
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> recView.smoothScrollToPosition(0));
     }
 
-  
-
-
-
-
     private void showErrorToast(String error) {
         Toast.makeText(this, "Error:" + error, Toast.LENGTH_SHORT).show();
     }
-
-
     ////////////////////////////////////////////////////////////////////////////////////NETWORK RELATED CODE///////////////////////////////////////////////////////////////////////////////////////
-
-
     public final String CRYPTO_URL_PATH = "https://files.coinmarketcap.com/static/img/coins/128x128/%s.png";
     public final String ENDPOINT_FETCH_CRYPTO_DATA = "https://api.coinmarketcap.com/v1/ticker/?limit=100";
     private RequestQueue mQueue;
     private final ObjectMapper mObjMapper = new ObjectMapper();
-
-    private class EntityToModelMapperTask extends AsyncTask<List<CryptoCoinEntity>, Void, List<CoinModel>> {
+    private  class EntityToModelMapperTask extends AsyncTask<List<CryptoCoinEntity>, Void, List<CoinModel>> {
         @Override
         protected List<CoinModel> doInBackground(List<CryptoCoinEntity>... data) {
             final ArrayList<CoinModel> listData = new ArrayList<>();
@@ -146,37 +118,35 @@ public class MainActivity extends LocationActivity {
 
 
     }
+    private  Response.Listener<JSONArray> mResponseListener = response -> {
+        writeDataToInternalStorage(response);
+        ArrayList<CryptoCoinEntity> data = parseJSON(response.toString());
+        Log.d(TAG, "data fetched:" + data);
+        new EntityToModelMapperTask().execute(data);
+    };
 
+    private  Response.ErrorListener mErrorListener= error -> {
+        showErrorToast(error.toString());
+        try {
+            JSONArray data = readDataFromStorage();
+            ArrayList<CryptoCoinEntity> entities = parseJSON(data.toString());
+            new EntityToModelMapperTask().execute(entities);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    };
+    private JsonArrayRequest mJsonObjReq;
     private void fetchData() {
         if (mQueue == null)
             mQueue = Volley.newRequestQueue(this);
         // Request a string response from the provided URL.
-        final JsonArrayRequest jsonObjReq = new JsonArrayRequest(ENDPOINT_FETCH_CRYPTO_DATA,
-                response -> {
-                    writeDataToInternalStorage(response);
-                    ArrayList<CryptoCoinEntity> data = parseJSON(response.toString());
-                    Log.d(TAG, "data fetched:" + data);
-                    new EntityToModelMapperTask().execute(data);
-
-
-                },
-                error -> {
-                    showErrorToast(error.toString());
-                    try {
-                        JSONArray data = readDataFromStorage();
-                        ArrayList<CryptoCoinEntity> entities = parseJSON(data.toString());
-                        new EntityToModelMapperTask().execute(entities);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                });
+        mJsonObjReq = new JsonArrayRequest(ENDPOINT_FETCH_CRYPTO_DATA,
+                mResponseListener,mErrorListener);
         // Add the request to the RequestQueue.
-        mQueue.add(jsonObjReq);
+        mQueue.add(mJsonObjReq);
     }
-
-
     public ArrayList<CryptoCoinEntity> parseJSON(String jsonStr) {
         ArrayList<CryptoCoinEntity> data = null;
 
@@ -189,11 +159,6 @@ public class MainActivity extends LocationActivity {
         }
         return data;
     }
-
-
-    ////////////////////////////////////////////////////////////////////////////////////LOCATION RELATED CODE/////////////////////////////////////////////////////////////////////////////////////
-
-
     //////////////////////////////////////////////////////////////////////////////////////STORAGE CODE///////////////////////////////////////////////////////////////////////////////////////////
     String DATA_FILE_NAME = "crypto.data";
 
@@ -212,7 +177,6 @@ public class MainActivity extends LocationActivity {
             e.printStackTrace();
         }
     }
-
     private JSONArray readDataFromStorage() throws JSONException {
         FileInputStream fis = null;
         try {

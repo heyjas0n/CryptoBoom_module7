@@ -27,7 +27,7 @@ public class Tracker implements LifecycleObserver {
     private final String TRACKING_URL = "https://httpbin.org/post";
     private final RequestQueue mQueue;
     private final String mOsVersion;
-    private final Context mCon;
+    private Context mCon;
 
     public Tracker(Context con) {
         mCon=con;
@@ -39,7 +39,7 @@ public class Tracker implements LifecycleObserver {
     private StringRequest generateTrackingStringRequest(final String eventName) {
         return new StringRequest(Request.Method.POST, TRACKING_URL,
                 response -> {
-                    Log.d(TAG, "onResponse() called with: response = [" + response + "]");
+                   // Log.d(TAG, "onResponse() called with: response = [" + response + "]");
 
                 },
                 error -> Log.d(TAG, "onErrorResponse() called with: error = [" + error + "]")) {
@@ -65,6 +65,7 @@ public class Tracker implements LifecycleObserver {
         ((AppCompatActivity)mCon).getLifecycle().removeObserver(this);
         mQueue.add(generateTrackingStringRequest("destroy"));
         Lifecycle.State currentState=((AppCompatActivity)mCon).getLifecycle().getCurrentState();
+        mCon=null;
 
     }
 
@@ -96,7 +97,8 @@ public class Tracker implements LifecycleObserver {
 
     }
 
-    public void trackLocation(int lat, int lng) {
+    public void trackLocation(double lat, double lng) {
+        Log.d(TAG, "trackLocation() called with: lat = [" + lat + "], lng = [" + lng + "]");
         mQueue.add(generateTrackingStringRequest("location\t" + lat + "-" + lng));
 
     }
