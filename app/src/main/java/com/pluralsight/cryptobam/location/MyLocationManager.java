@@ -44,7 +44,7 @@ public class MyLocationManager implements LifecycleObserver {
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void init() {
         Log.d(TAG, "init() called");
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mCon);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mCon.getApplicationContext());
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
@@ -73,7 +73,7 @@ public class MyLocationManager implements LifecycleObserver {
 
     public synchronized void buildGoogleApiClient() {
         Log.d(TAG, "buildGoogleApiClient() called");
-        mGoogleApiClient = new GoogleApiClient.Builder(mCon)
+        mGoogleApiClient = new GoogleApiClient.Builder(mCon.getApplicationContext())
                 .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
                     @Override
                     public void onConnected(@Nullable Bundle bundle) {

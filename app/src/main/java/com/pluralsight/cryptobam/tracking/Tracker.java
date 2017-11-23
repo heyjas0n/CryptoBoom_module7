@@ -32,7 +32,7 @@ public class Tracker implements LifecycleObserver {
     public Tracker(Context con) {
         mCon=con;
         mOsVersion = Build.VERSION.RELEASE;
-        mQueue = Volley.newRequestQueue(con);
+        mQueue = Volley.newRequestQueue(con.getApplicationContext());
         ((AppCompatActivity) con).getLifecycle().addObserver(this);
     }
 
