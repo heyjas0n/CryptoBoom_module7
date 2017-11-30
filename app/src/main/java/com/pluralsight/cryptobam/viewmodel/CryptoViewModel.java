@@ -1,5 +1,6 @@
 package com.pluralsight.cryptobam.viewmodel;
 
+import android.arch.lifecycle.ViewModel;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -31,7 +32,7 @@ import java.util.List;
  * Created by omrierez on 23.11.17.
  */
 
-public class CryptoViewModel {
+public class CryptoViewModel extends ViewModel {
 
     private static final String TAG = CryptoViewModel.class.getSimpleName();
     public final String CRYPTO_URL_PATH = "https://files.coinmarketcap.com/static/img/coins/128x128/%s.png";
@@ -40,19 +41,27 @@ public class CryptoViewModel {
     private final ObjectMapper mObjMapper = new ObjectMapper();
     private MainScreen mView;
     private Context mAppContext;
-
+    //LOG FILTER: onCleared()|CONSTRUCTOR|fetchData|onDestroy()
     public CryptoViewModel() {
-        Log.d(TAG, "NEW VIEWMODEL WAS CREATED");
+        Log.d(TAG, "VIEWMODEL CONSTRUCTOR WAS CALLED:\t"+this);
     }
     public void bind(MainActivity view) {
         mView=view;
         mAppContext=view.getApplicationContext();
 
     }
+
     public void unbind()
     {
         mView=null;
     }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        Log.d(TAG, "onCleared() called");
+    }
+
     private  class EntityToModelMapperTask extends AsyncTask<List<CryptoCoinEntity>, Void, List<CoinModel>> {
         @Override
         protected List<CoinModel> doInBackground(List<CryptoCoinEntity>... data) {
@@ -97,6 +106,7 @@ public class CryptoViewModel {
     };
     private JsonArrayRequest mJsonObjReq;
     public void fetchData() {
+        Log.d(TAG, "fetchData() called at\t"+this);
         if (mQueue == null)
             mQueue = Volley.newRequestQueue(mAppContext);
         // Request a string response from the provided URL.

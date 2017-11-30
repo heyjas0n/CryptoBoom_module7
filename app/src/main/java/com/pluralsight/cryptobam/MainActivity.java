@@ -1,11 +1,13 @@
 package com.pluralsight.cryptobam;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -31,7 +33,7 @@ public class MainActivity extends LocationActivity implements MainScreen{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         bindViews();
-        mViewModel=new CryptoViewModel();
+        mViewModel= ViewModelProviders.of(this).get(CryptoViewModel.class);
         mViewModel.bind(this);
         mViewModel.fetchData();
     }
@@ -39,7 +41,10 @@ public class MainActivity extends LocationActivity implements MainScreen{
     @Override
     protected void onDestroy() {
         mViewModel.unbind();
+        Log.d(TAG, "BEFORE super.onDestroy() called");
         super.onDestroy();
+        Log.d(TAG, "AFTER super.onDestroy() called");
+
     }
 
     @Override
@@ -78,6 +83,8 @@ public class MainActivity extends LocationActivity implements MainScreen{
         setSupportActionBar(toolbar);
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> recView.smoothScrollToPosition(0));
+        fab=findViewById(R.id.fabExit);
+        fab.setOnClickListener(view -> finish());
     }
 
     private void showErrorToast(String error) {
