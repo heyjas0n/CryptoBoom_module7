@@ -1,5 +1,6 @@
 package com.pluralsight.cryptobam;
 
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -12,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.pluralsight.cryptobam.fragments.UILessFragment;
 import com.pluralsight.cryptobam.recview.CoinModel;
 import com.pluralsight.cryptobam.recview.Divider;
 import com.pluralsight.cryptobam.recview.MyCryptoAdapter;
@@ -27,6 +29,12 @@ public class MainActivity extends LocationActivity implements MainScreen{
     private MyCryptoAdapter mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private CryptoViewModel mViewModel;
+    private long mLastFetchedDataTimeStamp;
+
+
+    private final Observer<List<CoinModel>> dataObserver = coinModels -> updateData(coinModels);
+
+    private final Observer<String> errorObserver = errorMsg -> setError(errorMsg);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,13 +42,17 @@ public class MainActivity extends LocationActivity implements MainScreen{
         setContentView(R.layout.activity_main);
         bindViews();
         mViewModel= ViewModelProviders.of(this).get(CryptoViewModel.class);
-        mViewModel.bind(this);
-        mViewModel.fetchData();
+        mViewModel.setAppContext(getApplicationContext());
+
+        mViewModel.getCoinsMarketData().observe(this, dataObserver);
+
+        mViewModel.getErrorUpdates().observe(this, errorObserver);
+
+        getSupportFragmentManager().beginTransaction().add(new UILessFragment(),"UILessFragment").commit();
     }
 
     @Override
     protected void onDestroy() {
-        mViewModel.unbind();
         Log.d(TAG, "BEFORE super.onDestroy() called");
         super.onDestroy();
         Log.d(TAG, "AFTER super.onDestroy() called");
@@ -67,11 +79,17 @@ public class MainActivity extends LocationActivity implements MainScreen{
         return super.onOptionsItemSelected(item);
     }
 
+    private final static int DATA_FETCHING_INTERVAL=10*1000; //10 seconds
     private void bindViews() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         recView = findViewById(R.id.recView);
         mSwipeRefreshLayout = findViewById(R.id.swipeToRefresh);
         mSwipeRefreshLayout.setOnRefreshListener(() -> {
+            if (System.currentTimeMillis() - mLastFetchedDataTimeStamp < DATA_FETCHING_INTERVAL) {
+                Log.d(TAG, "\tNot fetching from network because interval didn't reach");
+                mSwipeRefreshLayout.setRefreshing(false);
+                return;
+            }
             mViewModel.fetchData();
         });
         mAdapter = new MyCryptoAdapter();
@@ -88,11 +106,12 @@ public class MainActivity extends LocationActivity implements MainScreen{
     }
 
     private void showErrorToast(String error) {
-        Toast.makeText(this, "Error:" + error, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Error:" + error, Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void updateData(List<CoinModel> data) {
+        mLastFetchedDataTimeStamp=System.currentTimeMillis();
         mAdapter.setItems(data);
         mSwipeRefreshLayout.setRefreshing(false);
     }

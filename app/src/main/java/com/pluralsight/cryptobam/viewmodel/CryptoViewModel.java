@@ -1,20 +1,20 @@
 package com.pluralsight.cryptobam.viewmodel;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
 import android.content.Context;
-import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pluralsight.cryptobam.MainActivity;
 import com.pluralsight.cryptobam.entities.CryptoCoinEntity;
 import com.pluralsight.cryptobam.recview.CoinModel;
-import com.pluralsight.cryptobam.screens.MainScreen;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,94 +27,121 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
- * Created by omrierez on 23.11.17.
+ * Created by omrierez on 10/1/17.
  */
 
 public class CryptoViewModel extends ViewModel {
-
     private static final String TAG = CryptoViewModel.class.getSimpleName();
+
+    private MutableLiveData<List<CoinModel>> mDataApi = new MutableLiveData<>();
+
+    private MutableLiveData<String> mError = new MutableLiveData<>();
+
+    private ExecutorService mExecutor = Executors.newFixedThreadPool(5);
+
+    private Context mAppContext;
+
+
+    public CryptoViewModel() {
+        super();
+        Log.d(TAG, "NEW VIEWMODEL IS CREATED");
+    }
+
+    public void setAppContext(Context mAppContext) {
+        this.mAppContext = mAppContext;
+        if (mQueue == null)
+            mQueue = Volley.newRequestQueue(mAppContext);
+        fetchData();
+    }
+
+    /**
+     * This method will be called when this ViewModel is no longer used and will be destroyed.
+     * <p>
+     * It is useful when ViewModel observes some data and you need to clear this subscription to
+     * prevent a leak of this ViewModel.
+     */
+    @Override
+    protected void onCleared() {
+        Log.d(TAG, "onCleared() called");
+        super.onCleared();
+    }
+
+    public LiveData<List<CoinModel>> getCoinsMarketData() {
+        return mDataApi;
+    }
+
+    public LiveData<String> getErrorUpdates() {
+        return mError;
+    }
+
+    public LiveData<Double> getTotalMarketCap() {
+
+        return Transformations.map(mDataApi, input -> {
+            double totalMarketCap = 0;
+            for (int i = 0; i < input.size(); i++) {
+                totalMarketCap += input.get(i).marketCap;
+            }
+            return totalMarketCap;
+        });
+    }
+    ////////////////////////////////////////////////////////////////////////////////////NETWORK RELATED CODE///////////////////////////////////////////////////////////////////////////////////////
+
+
     public final String CRYPTO_URL_PATH = "https://files.coinmarketcap.com/static/img/coins/128x128/%s.png";
     public final String ENDPOINT_FETCH_CRYPTO_DATA = "https://api.coinmarketcap.com/v1/ticker/?limit=100";
     private RequestQueue mQueue;
     private final ObjectMapper mObjMapper = new ObjectMapper();
-    private MainScreen mView;
-    private Context mAppContext;
-    //LOG FILTER: onCleared()|CONSTRUCTOR|fetchData|onDestroy()
-    public CryptoViewModel() {
-        Log.d(TAG, "VIEWMODEL CONSTRUCTOR WAS CALLED:\t"+this);
-    }
-    public void bind(MainActivity view) {
-        mView=view;
-        mAppContext=view.getApplicationContext();
 
-    }
-
-    public void unbind()
-    {
-        mView=null;
-    }
-
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        Log.d(TAG, "onCleared() called");
-    }
-
-    private  class EntityToModelMapperTask extends AsyncTask<List<CryptoCoinEntity>, Void, List<CoinModel>> {
-        @Override
-        protected List<CoinModel> doInBackground(List<CryptoCoinEntity>... data) {
-            final ArrayList<CoinModel> listData = new ArrayList<>();
-            CryptoCoinEntity entity;
-            for (int i = 0; i < data[0].size(); i++) {
-                entity = data[0].get(i);
-                listData.add(new CoinModel(entity.getName(), entity.getSymbol(), String.format(CRYPTO_URL_PATH, entity.getId()), entity.getPriceUsd(), entity.get24hVolumeUsd()));
-            }
-
-            return listData;
+    @NonNull
+    private List<CoinModel> mapEntityToModel(List<CryptoCoinEntity> datum) {
+        final ArrayList<CoinModel> listData = new ArrayList<>();
+        CryptoCoinEntity entity;
+        for (int i = 0; i < datum.size(); i++) {
+            entity = datum.get(i);
+            listData.add(new CoinModel(entity.getName(), entity.getSymbol(), String.format(CRYPTO_URL_PATH, entity.getId()),entity.getPriceUsd(),
+                    entity.get24hVolumeUsd(), Double.valueOf(entity.getMarketCapUsd())));
         }
 
-        @Override
-        protected void onPostExecute(List<CoinModel> data) {
-            if (mView!=null)
-                mView.updateData(data);
-
-        }
-
-
+        return listData;
     }
-    private  Response.Listener<JSONArray> mResponseListener = response -> {
-        writeDataToInternalStorage(response);
-        ArrayList<CryptoCoinEntity> data = parseJSON(response.toString());
-        Log.d(TAG, "data fetched:" + data);
-        new EntityToModelMapperTask().execute(data);
-    };
 
-    private  Response.ErrorListener mErrorListener= error -> {
-        if (mView!=null)
-            mView.setError(error.toString());
-        try {
-            JSONArray data = readDataFromStorage();
-            ArrayList<CryptoCoinEntity> entities = parseJSON(data.toString());
-            new EntityToModelMapperTask().execute(entities);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    };
-    private JsonArrayRequest mJsonObjReq;
     public void fetchData() {
-        Log.d(TAG, "fetchData() called at\t"+this);
-        if (mQueue == null)
-            mQueue = Volley.newRequestQueue(mAppContext);
+
         // Request a string response from the provided URL.
-        mJsonObjReq = new JsonArrayRequest(ENDPOINT_FETCH_CRYPTO_DATA,
-                mResponseListener,mErrorListener);
+        final JsonArrayRequest jsonObjReq = new JsonArrayRequest(ENDPOINT_FETCH_CRYPTO_DATA,
+                response -> {
+                    Log.d(TAG, "Thread->" + Thread.currentThread().getName()+"\tGot some network response");
+                    writeDataToInternalStorage(response);
+                    final ArrayList<CryptoCoinEntity> data = parseJSON(response.toString());
+                    List<CoinModel> mappedData = mapEntityToModel(data);
+                    mDataApi.setValue(mappedData);
+                },
+                error -> {
+                    Log.d(TAG, "Thread->" + Thread.currentThread().getName()+"\tGot network error");
+                    mError.setValue(error.toString());
+                    mExecutor.execute(() -> {
+                        try {
+                            Log.d(TAG, "Thread->"+Thread.currentThread().getName()+"\tNot fetching from network because of network error - fetching from disk");
+                            JSONArray data = readDataFromStorage();
+                            ArrayList<CryptoCoinEntity> entities = parseJSON(data.toString());
+                            List<CoinModel> mappedData = mapEntityToModel(entities);
+                            mDataApi.postValue(mappedData);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
+
+                });
         // Add the request to the RequestQueue.
-        mQueue.add(mJsonObjReq);
+        mQueue.add(jsonObjReq);
     }
+
+
     public ArrayList<CryptoCoinEntity> parseJSON(String jsonStr) {
         ArrayList<CryptoCoinEntity> data = null;
 
@@ -122,12 +149,13 @@ public class CryptoViewModel extends ViewModel {
             data = mObjMapper.readValue(jsonStr, new TypeReference<ArrayList<CryptoCoinEntity>>() {
             });
         } catch (Exception e) {
-            if (mView!=null)
-                mView.setError(e.getMessage());
+            mError.postValue(e.toString());
             e.printStackTrace();
         }
         return data;
     }
+
+
     //////////////////////////////////////////////////////////////////////////////////////STORAGE CODE///////////////////////////////////////////////////////////////////////////////////////////
     String DATA_FILE_NAME = "crypto.data";
 
@@ -146,6 +174,7 @@ public class CryptoViewModel extends ViewModel {
             e.printStackTrace();
         }
     }
+
     private JSONArray readDataFromStorage() throws JSONException {
         FileInputStream fis = null;
         try {
@@ -166,4 +195,6 @@ public class CryptoViewModel extends ViewModel {
         }
         return new JSONArray(sb.toString());
     }
+
 }
+
