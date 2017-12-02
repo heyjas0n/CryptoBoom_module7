@@ -15,16 +15,16 @@ import com.pluralsight.cryptobam.viewmodel.CryptoViewModel;
 public class UILessFragment extends android.support.v4.app.Fragment {
     private static final String TAG = UILessFragment.class.getSimpleName();
     private CryptoViewModel mViewModel;
+    private final Observer<Double> mObserver= totalMarketCap ->
+            Log.d(TAG, "onChanged() called with: aDouble = [" +totalMarketCap + "]");
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(CryptoViewModel.class);
 
-        final Observer<Double> observer= totalMarketCap ->
-                Log.d(TAG, "onChanged() called with: aDouble = [" +totalMarketCap + "]");
 
-        mViewModel.getTotalMarketCap().observe(this,observer);
+        mViewModel.getTotalMarketCap().observe(this,mObserver);
 
     }
 }
