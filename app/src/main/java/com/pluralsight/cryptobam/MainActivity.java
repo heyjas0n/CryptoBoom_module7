@@ -23,14 +23,12 @@ import com.pluralsight.cryptobam.viewmodel.CryptoViewModel;
 import java.util.List;
 
 public class MainActivity extends LocationActivity implements MainScreen{
-
     private static final String TAG = MainActivity.class.getSimpleName();
     private RecyclerView recView;
     private MyCryptoAdapter mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private CryptoViewModel mViewModel;
     private long mLastFetchedDataTimeStamp;
-
 
     private final Observer<List<CoinModel>> dataObserver = coinModels -> updateData(coinModels);
 
@@ -48,8 +46,13 @@ public class MainActivity extends LocationActivity implements MainScreen{
 
         mViewModel.getErrorUpdates().observe(this, errorObserver);
 
-        getSupportFragmentManager().beginTransaction().add(new UILessFragment(),"UILessFragment").commit();
+        getSupportFragmentManager().beginTransaction()
+                .add(new UILessFragment(),"UILessFragment").commit();
     }
+
+
+
+
 
     @Override
     protected void onDestroy() {

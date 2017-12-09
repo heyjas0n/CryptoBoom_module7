@@ -21,8 +21,10 @@ public class UILessFragment extends android.support.v4.app.Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(CryptoViewModel.class);
 
+        //mViewModel = ViewModelProviders.of(this).get(CryptoViewModel.class);
+
+        mViewModel = ViewModelProviders.of(getActivity()).get(CryptoViewModel.class);
 
         mViewModel.getTotalMarketCap().observe(this,mObserver);
 

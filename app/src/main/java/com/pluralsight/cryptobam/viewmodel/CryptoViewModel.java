@@ -45,6 +45,24 @@ public class CryptoViewModel extends ViewModel {
 
     private Context mAppContext;
 
+    public LiveData<List<CoinModel>> getCoinsMarketData() {
+        return mDataApi;
+    }
+
+    public LiveData<String> getErrorUpdates() {
+        return mError;
+    }
+
+    public LiveData<Double> getTotalMarketCap() {
+
+        return Transformations.map(mDataApi, input -> {
+            double totalMarketCap = 0;
+            for (int i = 0; i < input.size(); i++) {
+                totalMarketCap += input.get(i).marketCap;
+            }
+            return totalMarketCap;
+        });
+    }
 
     public CryptoViewModel() {
         super();
@@ -70,24 +88,6 @@ public class CryptoViewModel extends ViewModel {
         super.onCleared();
     }
 
-    public LiveData<List<CoinModel>> getCoinsMarketData() {
-        return mDataApi;
-    }
-
-    public LiveData<String> getErrorUpdates() {
-        return mError;
-    }
-
-    public LiveData<Double> getTotalMarketCap() {
-
-        return Transformations.map(mDataApi, input -> {
-            double totalMarketCap = 0;
-            for (int i = 0; i < input.size(); i++) {
-                totalMarketCap += input.get(i).marketCap;
-            }
-            return totalMarketCap;
-        });
-    }
     ////////////////////////////////////////////////////////////////////////////////////NETWORK RELATED CODE///////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -110,22 +110,24 @@ public class CryptoViewModel extends ViewModel {
     }
 
     public void fetchData() {
-
-        // Request a string response from the provided URL.
-        final JsonArrayRequest jsonObjReq = new JsonArrayRequest(ENDPOINT_FETCH_CRYPTO_DATA,
+        final JsonArrayRequest jsonObjReq =
+                new JsonArrayRequest(ENDPOINT_FETCH_CRYPTO_DATA,
                 response -> {
-                    Log.d(TAG, "Thread->" + Thread.currentThread().getName()+"\tGot some network response");
+                    Log.d(TAG, "Thread->" +
+                            Thread.currentThread().getName()+"\tGot some network response");
                     writeDataToInternalStorage(response);
                     final ArrayList<CryptoCoinEntity> data = parseJSON(response.toString());
                     List<CoinModel> mappedData = mapEntityToModel(data);
                     mDataApi.setValue(mappedData);
                 },
                 error -> {
-                    Log.d(TAG, "Thread->" + Thread.currentThread().getName()+"\tGot network error");
+                    Log.d(TAG, "Thread->" +
+                            Thread.currentThread().getName()+"\tGot network error");
                     mError.setValue(error.toString());
                     mExecutor.execute(() -> {
                         try {
-                            Log.d(TAG, "Thread->"+Thread.currentThread().getName()+"\tNot fetching from network because of network error - fetching from disk");
+                            Log.d(TAG, "Thread->"+Thread.currentThread().getName()+
+                                    "\tNot fetching from network because of network error - fetching from disk");
                             JSONArray data = readDataFromStorage();
                             ArrayList<CryptoCoinEntity> entities = parseJSON(data.toString());
                             List<CoinModel> mappedData = mapEntityToModel(entities);
