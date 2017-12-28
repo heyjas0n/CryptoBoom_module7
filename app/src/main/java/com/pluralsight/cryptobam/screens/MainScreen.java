@@ -1,8 +1,10 @@
 package com.pluralsight.cryptobam.screens;
 
-import com.pluralsight.cryptobam.recview.CoinModel;
+
+import com.cryptoboom.data.models.CoinModel;
 
 import java.util.List;
+
 
 /**
  * Created by omrierez on 23.11.17.

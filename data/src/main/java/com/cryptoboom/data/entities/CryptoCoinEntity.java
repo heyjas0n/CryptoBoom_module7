@@ -1,4 +1,4 @@
-package com.pluralsight.cryptobam.entities;
+package com.cryptoboom.data.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

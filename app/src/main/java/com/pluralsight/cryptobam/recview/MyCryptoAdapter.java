@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.cryptoboom.data.models.CoinModel;
 import com.pluralsight.cryptobam.R;
 
 import java.util.ArrayList;

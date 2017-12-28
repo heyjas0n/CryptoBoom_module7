@@ -1,4 +1,4 @@
-package com.pluralsight.cryptobam.recview;
+package com.cryptoboom.data.models;
 
 /**
  * Created by omrierez on 12.11.17.
