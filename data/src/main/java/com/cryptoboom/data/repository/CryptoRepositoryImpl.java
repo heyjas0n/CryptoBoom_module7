@@ -38,28 +38,36 @@ public class CryptoRepositoryImpl implements CryptoRepository {
                 mExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        mLocalDataSource.writeData(mMapper.mapEntitiesToString(entities));
+                        Log.d(TAG, "mDataMerger\tmRemoteDataSource onChange invoked");
+                        mLocalDataSource.writeData(entities);
                         List<CoinModel> list = mMapper.mapEntityToModel(entities);
                         mDataMerger.postValue(list);
 
                     }
                 })
         );
-        mDataMerger.addSource(this.mLocalDataSource.getDataStream(), json ->
+      /*  mDataMerger.addSource(this.mLocalDataSource.getDataStream(), entities ->
                 mExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        List<CryptoCoinEntity> entities = mMapper.mapJSONToEntity(json.toString());
+                        Log.d(TAG, "mDataMerger\tmLocalDataSource onChange invoked");
                         List<CoinModel> models = mMapper.mapEntityToModel(entities);
                         mDataMerger.postValue(models);
                     }
                 })
 
-        );
+        );*/
         mErrorMerger.addSource(mRemoteDataSource.getErrorStream(), errorStr -> {
                     mErrorMerger.setValue(errorStr);
                     Log.d(TAG, "Network error -> fetching from LocalDataSource");
-                    mLocalDataSource.fetch();
+                    mExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            List<CryptoCoinEntity> entities = (mLocalDataSource.getALlCoins());
+                            mDataMerger.postValue(mMapper.mapEntityToModel(entities));
+                        }
+                    });
+
                 }
         );
         mErrorMerger.addSource(mLocalDataSource.getErrorStream(), errorStr -> mErrorMerger.setValue(errorStr));

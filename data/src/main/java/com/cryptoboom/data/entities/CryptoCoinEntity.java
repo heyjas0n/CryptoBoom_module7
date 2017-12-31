@@ -5,6 +5,7 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -18,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Entity(tableName = "coins",
         indices = {@Index("symbol"),
                    @Index("total_supply"),
-                   @Index({"bla","symbol"})})
+                   @Index({"id","symbol"})})
 
 public class CryptoCoinEntity {
     //We are going to get a list of these entities from our api call - this entity is immutable
@@ -32,6 +33,7 @@ public class CryptoCoinEntity {
 
     @JsonProperty("symbol")
     @PrimaryKey
+    @NonNull
     private String symbol;
 
     @JsonProperty("rank")
@@ -48,13 +50,16 @@ public class CryptoCoinEntity {
     private String marketCapUsd;
     @JsonProperty("available_supply")
     private String availableSupply;
+
     @JsonProperty("total_supply")
+    @ColumnInfo(name="total_supply")
     private String totalSupply;
+
+    @ColumnInfo(name="percent_change_1h")
     @JsonProperty("percent_change_1h")
     private String percentChange1h;
 
     @JsonProperty("percent_change_24h")
-    @Ignore
     private String percentChange24h;
 
     @JsonProperty("percent_change_7d")

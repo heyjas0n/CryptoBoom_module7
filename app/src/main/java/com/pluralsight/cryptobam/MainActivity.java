@@ -23,7 +23,7 @@ import java.util.List;
 
 public class MainActivity extends LocationActivity implements MainScreen{
     private static final String TAG = MainActivity.class.getSimpleName();
-    private final static int DATA_FETCHING_INTERVAL=10*1000; //10 seconds
+    private final static int DATA_FETCHING_INTERVAL=5*1000; //5 seconds
     private RecyclerView recView;
     private MyCryptoAdapter mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
