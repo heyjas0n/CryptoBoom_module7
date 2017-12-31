@@ -33,7 +33,8 @@ public class LocalDataSource implements DataSource<List<CryptoCoinEntity>>{
             mDb.coinDao().insertCoins(coins);
         }catch(Exception e)
         {
-            mError.setValue(e.getMessage());
+            e.printStackTrace();
+            mError.postValue(e.getMessage());
         }
     }
 
