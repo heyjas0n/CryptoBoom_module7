@@ -1,5 +1,20 @@
 apply plugin: 'com.android.library'
+apply plugin: 'jacoco'
+task jacocoTestReport(type: JacocoReport, dependsOn: 'testDebugUnitTest') {
 
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+
+    def fileFilter = ['**/R.class', '**/R$*.class', '**/BuildConfig.*',
+                      '**/Manifest*.*', '**/*Test*.*', 'android/**/*.*']
+    def debugTree = fileTree(dir: "${buildDir}/intermediates/classes/debug", excludes: fileFilter)
+    def mainSrc = "${project.projectDir}/src/main/java"
+    sourceDirectories = files([mainSrc])
+    classDirectories = files([debugTree])
+    executionData = files("${buildDir}/jacoco/testDebugUnitTest.exec")
+}
 android {
     compileSdkVersion 26
 
@@ -10,6 +25,7 @@ android {
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -19,6 +35,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug
+        {
+            testCoverageEnabled true
         }
     }
     compileOptions {
@@ -36,6 +56,8 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
+    testImplementation "org.mockito:mockito-core:2.11.0"
+    androidTestImplementation "org.mockito:mockito-android:2.11.0"
 
     api 'com.android.volley:volley:1.1.0-rc2'
     api "android.arch.lifecycle:extensions:1.0.0"

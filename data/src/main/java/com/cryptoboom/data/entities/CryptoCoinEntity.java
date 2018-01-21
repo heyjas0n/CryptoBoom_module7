@@ -230,4 +230,14 @@ public class CryptoCoinEntity {
                 ", lastUpdated='" + lastUpdated + '\'' +
                 '}';
     }
+
+    public CryptoCoinEntity(String id, String name, @NonNull String symbol, String rank, String priceUsd, String priceBtc, String _24hVolumeUsd) {
+        this.id = id;
+        this.name = name;
+        this.symbol = symbol;
+        this.rank = rank;
+        this.priceUsd = priceUsd;
+        this.priceBtc = priceBtc;
+        this._24hVolumeUsd = _24hVolumeUsd;
+    }
 }
