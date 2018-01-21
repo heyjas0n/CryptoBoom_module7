@@ -231,7 +231,8 @@ public class CryptoCoinEntity {
                 '}';
     }
 
-    public CryptoCoinEntity(String id, String name, @NonNull String symbol, String rank, String priceUsd, String priceBtc, String _24hVolumeUsd) {
+    /*@VisibleForTesting
+    public CryptoCoinEntity(String id, String name, @NonNull String symbol, String rank, String priceUsd, String priceBtc, String _24hVolumeUsd,String marketCapUsd) {
         this.id = id;
         this.name = name;
         this.symbol = symbol;
@@ -239,5 +240,6 @@ public class CryptoCoinEntity {
         this.priceUsd = priceUsd;
         this.priceBtc = priceBtc;
         this._24hVolumeUsd = _24hVolumeUsd;
-    }
+        this.marketCapUsd=marketCapUsd;
+    }*/
 }

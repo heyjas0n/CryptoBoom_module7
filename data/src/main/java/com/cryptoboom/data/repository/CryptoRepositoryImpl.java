@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.Transformations;
 import android.content.Context;
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import com.cryptoboom.data.entities.CryptoCoinEntity;
@@ -39,14 +40,16 @@ public class CryptoRepositoryImpl implements CryptoRepository {
                     @Override
                     public void run() {
                         Log.d(TAG, "mDataMerger\tmRemoteDataSource onChange invoked");
+
                         mLocalDataSource.writeData(entities);
                         List<CoinModel> list = mMapper.mapEntityToModel(entities);
                         mDataMerger.postValue(list);
 
+
                     }
                 })
         );
-      /*  mDataMerger.addSource(this.mLocalDataSource.getDataStream(), entities ->
+        mDataMerger.addSource(this.mLocalDataSource.getDataStream(), entities ->
                 mExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
@@ -56,7 +59,7 @@ public class CryptoRepositoryImpl implements CryptoRepository {
                     }
                 })
 
-        );*/
+        );
         mErrorMerger.addSource(mRemoteDataSource.getErrorStream(), errorStr -> {
                     mErrorMerger.setValue(errorStr);
                     Log.d(TAG, "Network error -> fetching from LocalDataSource");
@@ -74,6 +77,14 @@ public class CryptoRepositoryImpl implements CryptoRepository {
     }
 
     public static CryptoRepository create(Context mAppContext) {
+        final CryptoMapper mapper = new CryptoMapper();
+        final RemoteDataSource remoteDataSource = new RemoteDataSource(mAppContext, mapper);
+        final LocalDataSource localDataSource = new LocalDataSource(mAppContext);
+        return new CryptoRepositoryImpl(remoteDataSource, localDataSource, mapper);
+    }
+
+    @VisibleForTesting
+    public static CryptoRepositoryImpl createImpl(Context mAppContext) {
         final CryptoMapper mapper = new CryptoMapper();
         final RemoteDataSource remoteDataSource = new RemoteDataSource(mAppContext, mapper);
         final LocalDataSource localDataSource = new LocalDataSource(mAppContext);
@@ -104,5 +115,10 @@ public class CryptoRepositoryImpl implements CryptoRepository {
             }
             return totalMarketCap;
         });
+    }
+
+    @VisibleForTesting
+    public void insertAllCoins(List<CryptoCoinEntity> entities) {
+        mLocalDataSource.writeData(entities);
     }
 }

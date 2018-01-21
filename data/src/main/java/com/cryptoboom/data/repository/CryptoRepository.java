@@ -1,6 +1,8 @@
 package com.cryptoboom.data.repository;
 import android.arch.lifecycle.LiveData;
+
 import com.cryptoboom.data.models.CoinModel;
+
 import java.util.List;
 
 /**
@@ -13,4 +15,4 @@ public interface CryptoRepository {
     LiveData<String> getErrorStream();
     LiveData<Double> getTotalMarketCapStream();
     void fetchData();
-}
+    }

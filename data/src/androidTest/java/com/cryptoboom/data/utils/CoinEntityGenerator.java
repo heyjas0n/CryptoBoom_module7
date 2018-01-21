@@ -16,6 +16,6 @@ public class CoinEntityGenerator {
     public static CryptoCoinEntity createRandomEntity() {
         return new CryptoCoinEntity(UUID.randomUUID().toString(), "BTC", String.valueOf(rand.nextInt()),
                 String.valueOf(rand.nextFloat()), String.valueOf(rand.nextFloat()),
-                String.valueOf(rand.nextInt()), String.valueOf(rand.nextInt()));
+                String.valueOf(rand.nextInt()), String.valueOf(rand.nextInt()),String.valueOf(rand.nextInt(10000000)));
     }
 }

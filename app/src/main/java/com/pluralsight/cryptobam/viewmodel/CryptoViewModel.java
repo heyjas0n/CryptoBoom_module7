@@ -4,6 +4,7 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import com.cryptoboom.data.models.CoinModel;
@@ -19,15 +20,18 @@ import java.util.List;
 public class CryptoViewModel extends AndroidViewModel {
     private static final String TAG = CryptoViewModel.class.getSimpleName();
     private CryptoRepository mCryptoRepository;
+
     public LiveData<List<CoinModel>> getCoinsMarketData() {
         return mCryptoRepository.getCryptoCoinsData();
     }
+
     public LiveData<String> getErrorUpdates() {
         return mCryptoRepository.getErrorStream();
     }
+
     public CryptoViewModel(@NonNull Application application) {
         super(application);
-        mCryptoRepository= CryptoRepositoryImpl.create(application);
+        mCryptoRepository = CryptoRepositoryImpl.create(application);
     }
 
     @Override
@@ -40,9 +44,12 @@ public class CryptoViewModel extends AndroidViewModel {
         mCryptoRepository.fetchData();
     }
 
-    public LiveData<Double>getTotalMarketCap()
-    {
+    public LiveData<Double> getTotalMarketCap() {
         return mCryptoRepository.getTotalMarketCapStream();
     }
+    @VisibleForTesting
+    public CryptoViewModel(@NonNull Application application,CryptoRepositoryImpl repo) {
+        super(application);
+        this.mCryptoRepository = repo;    }
 }
 

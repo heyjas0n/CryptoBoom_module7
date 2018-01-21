@@ -35,6 +35,12 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.3.1'
     implementation 'com.google.android.gms:play-services-location:11.2.0'
 
+    testImplementation "org.mockito:mockito-core:2.11.0"
+    androidTestImplementation "org.mockito:mockito-android:2.11.0"
+    androidTestImplementation "com.fasterxml.jackson.core:jackson-databind:2.7.3"
+
+
+
     implementation project(':data')
 
 

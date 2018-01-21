@@ -64,8 +64,7 @@ public class CoinDaoTest {
     public void insertCoins() throws Exception {
         List<CryptoCoinEntity> coins = new ArrayList<>();
         CountDownLatch latch = new CountDownLatch(1);
-        for (int i = 0; i < NUM_OF_INSERT_COINS; i++)
-            coins.add(createRandomEntity());
+        createRandomCoins(coins);
         coinDao.getAllCoinsLive().observeForever(observer);
         coinDao.insertCoins(coins);
         assertCoins(coinDao, coins);
@@ -74,6 +73,12 @@ public class CoinDaoTest {
 
 
     }
+
+    private void createRandomCoins(List<CryptoCoinEntity> coins) {
+        for (int i = 0; i < NUM_OF_INSERT_COINS; i++)
+            coins.add(createRandomEntity());
+    }
+
     @Test
     public void insertCoinsEmpty() throws InterruptedException {
         List empty=new ArrayList();
