@@ -5,6 +5,7 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
+import android.support.annotation.VisibleForTesting;
 
 import com.cryptoboom.data.entities.CryptoCoinEntity;
 
@@ -31,6 +32,11 @@ public interface CoinDao {
 
     @Query("SELECT * FROM coins WHERE symbol=:symbol")
     LiveData<CryptoCoinEntity>getCoin(String symbol);
+
+    @VisibleForTesting
+    @Query("DELETE FROM coins")
+    void deleteAllCoins();
+
 
 }
 

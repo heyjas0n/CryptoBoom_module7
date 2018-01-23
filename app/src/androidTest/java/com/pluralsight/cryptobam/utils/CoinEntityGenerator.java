@@ -3,6 +3,7 @@ package com.pluralsight.cryptobam.utils;
 import com.cryptoboom.data.entities.CryptoCoinEntity;
 
 import java.util.Random;
+import java.util.UUID;
 
 /**
  * Created by omrierez on 21.01.18.
@@ -15,7 +16,7 @@ public class CoinEntityGenerator {
     public static CryptoCoinEntity createRandomEntity() {
         CryptoCoinEntity entity = new CryptoCoinEntity();
         entity.setId(String.valueOf(id++));
-        entity.setSymbol("BTC");
+        entity.setSymbol(UUID.randomUUID().toString().substring(0,5));
         entity.setName("Bitcoin");
         entity.setRank(String.valueOf(rand.nextInt()));
         entity.setPriceUsd(String.valueOf(rand.nextFloat()));

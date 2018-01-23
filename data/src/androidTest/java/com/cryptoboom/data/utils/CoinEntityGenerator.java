@@ -12,10 +12,15 @@ import java.util.UUID;
 public class CoinEntityGenerator {
 
     private final static Random rand = new Random();
-
+    private static int id=0;
     public static CryptoCoinEntity createRandomEntity() {
-        return new CryptoCoinEntity(UUID.randomUUID().toString(), "BTC", String.valueOf(rand.nextInt()),
-                String.valueOf(rand.nextFloat()), String.valueOf(rand.nextFloat()),
-                String.valueOf(rand.nextInt()), String.valueOf(rand.nextInt()),String.valueOf(rand.nextInt(10000000)));
+        CryptoCoinEntity entity = new CryptoCoinEntity();
+        entity.setId(String.valueOf(id++));
+        entity.setSymbol(UUID.randomUUID().toString().substring(0,5));
+        entity.setName("Bitcoin");
+        entity.setRank(String.valueOf(rand.nextInt()));
+        entity.setPriceUsd(String.valueOf(rand.nextFloat()));
+        entity.setMarketCapUsd(String.valueOf(rand.nextInt(100)));
+        return entity;
     }
 }

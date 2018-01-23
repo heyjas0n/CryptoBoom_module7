@@ -62,21 +62,23 @@ public class CoinDaoTest {
 
     @Test
     public void insertCoins() throws Exception {
-        List<CryptoCoinEntity> coins = new ArrayList<>();
         CountDownLatch latch = new CountDownLatch(1);
-        createRandomCoins(coins);
+        List<CryptoCoinEntity> coins=createRandomCoins();
         coinDao.getAllCoinsLive().observeForever(observer);
         coinDao.insertCoins(coins);
-        assertCoins(coinDao, coins);
         latch.await(1, TimeUnit.SECONDS);
+        assertCoins(coinDao, coins);
         verify(observer,atLeastOnce()).onChanged(argThat(new CryptoCoinEntityMatcher(coins)));
+
 
 
     }
 
-    private void createRandomCoins(List<CryptoCoinEntity> coins) {
+    private List<CryptoCoinEntity> createRandomCoins() {
+        List<CryptoCoinEntity> coins = new ArrayList<>();
         for (int i = 0; i < NUM_OF_INSERT_COINS; i++)
             coins.add(createRandomEntity());
+        return coins;
     }
 
     @Test

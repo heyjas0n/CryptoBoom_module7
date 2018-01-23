@@ -121,4 +121,10 @@ public class CryptoRepositoryImpl implements CryptoRepository {
     public void insertAllCoins(List<CryptoCoinEntity> entities) {
         mLocalDataSource.writeData(entities);
     }
+
+    @VisibleForTesting
+    public void deleteAllCoins() {
+        mLocalDataSource.deleteAllCoins();
+    }
 }
+

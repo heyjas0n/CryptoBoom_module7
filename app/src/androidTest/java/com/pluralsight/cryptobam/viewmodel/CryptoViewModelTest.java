@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -55,14 +56,15 @@ public class CryptoViewModelTest {
 
     @Test
     public void testTotalMarketCap() throws InterruptedException {
-        CountDownLatch latch = new CountDownLatch(1);
         List<CryptoCoinEntity> coins = createRandomCoins();
         CryptoMapper mapper=new CryptoMapper();
+        CountDownLatch latch=new CountDownLatch(1);
         totalMarketCap = calculateTotalMarketCap(mapper.mapEntityToModel(coins));
         mViewModel.getTotalMarketCap().observeForever(observer);
+        repo.deleteAllCoins();
         repo.insertAllCoins(coins);
-        latch.await(5, TimeUnit.SECONDS);
-        verify(observer).onChanged(totalMarketCap);
+        latch.await(50, TimeUnit.MILLISECONDS);
+        verify(observer,atLeastOnce()).onChanged(totalMarketCap);
 
     }
 

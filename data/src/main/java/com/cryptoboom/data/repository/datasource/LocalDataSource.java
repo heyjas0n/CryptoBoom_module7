@@ -3,6 +3,7 @@ package com.cryptoboom.data.repository.datasource;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
+import android.support.annotation.VisibleForTesting;
 
 import com.cryptoboom.data.db.RoomDb;
 import com.cryptoboom.data.entities.CryptoCoinEntity;
@@ -40,5 +41,11 @@ public class LocalDataSource implements DataSource<List<CryptoCoinEntity>>{
 
     public List<CryptoCoinEntity> getALlCoins() {
         return mDb.coinDao().getAllCoins();
+    }
+
+    @VisibleForTesting
+    public void deleteAllCoins()
+    {
+        mDb.coinDao().deleteAllCoins();
     }
 }
