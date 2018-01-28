@@ -35,11 +35,9 @@ import static org.mockito.Mockito.verify;
 public class CryptoViewModelTest {
 
     private final int NUM_OF_INSERT_COINS = 100;
-
     private CryptoRepositoryImpl repo;
     @Mock
     private Observer<Double> observer;
-
     private CryptoViewModel mViewModel;
     private Double totalMarketCap;
 

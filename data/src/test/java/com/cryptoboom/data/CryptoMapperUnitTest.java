@@ -20,8 +20,8 @@ import static junit.framework.Assert.assertTrue;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 public class CryptoMapperUnitTest {
-    private static final String INPUT_FILE_PATH = "/Users/omrierez/AndroidStudioProjects/CryptoBoom/data/src/sharedTest/testsets/coins.json";
-
+    private static final String INPUT_FILE_PATH =
+            "/Users/omrierez/AndroidStudioProjects/CryptoBoom/data/src/sharedTest/testsets/coins.json";
     @Test
     public void mapperFuncJsonToEntity() throws Exception {
         CryptoMapper mapper = new CryptoMapper();
@@ -31,16 +31,13 @@ public class CryptoMapperUnitTest {
         final CoinEntityMatcher matcher=new CoinEntityMatcher(coins);
         assertTrue(matcher.matches(result));
     }
-
     @Test
     public void mapperFuncEntitiesToModels() throws Exception {
         CryptoMapper mapper = new CryptoMapper();
-        final String inputFilePath = "/Users/omrierez/AndroidStudioProjects/CryptoBoom/data/src/sharedTest/testsets/coins.json";
-        List<CryptoCoinEntity> data = CoinEntityGenerator.createConstantCoinsDataSet(inputFilePath);
+        List<CryptoCoinEntity> data = CoinEntityGenerator.createConstantCoinsDataSet(INPUT_FILE_PATH);
         List<CoinModel> dataModels = mapper.mapEntityToModel(data);
         assert (compareEntitiesToModels(dataModels,data));
     }
-
     private boolean compareEntitiesToModels(List<CoinModel> models, List<CryptoCoinEntity> entities)
     {
         if(models.size()!= entities.size())
@@ -57,7 +54,6 @@ public class CryptoMapperUnitTest {
                     &&model.priceUsd.compareTo(entity.getPriceUsd())==0);
             else
                 return false;
-
         }
         return true;
     }
