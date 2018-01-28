@@ -22,7 +22,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static cryptobam.utils.CoinEntityGenerator.createRandomEntity;
+import cryptobam.utils.CoinEntityGenerator;
+
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
@@ -72,7 +73,7 @@ public class CryptoViewModelTest {
         List<CryptoCoinEntity> coins = new ArrayList<>();
         CryptoCoinEntity entity;
         for (int i = 0; i < NUM_OF_INSERT_COINS; i++) {
-            entity = createRandomEntity();
+            entity = CoinEntityGenerator.createRandomEntity();
             coins.add(entity);
         }
         return coins;
