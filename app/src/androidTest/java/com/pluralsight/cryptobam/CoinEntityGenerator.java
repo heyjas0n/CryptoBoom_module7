@@ -1,4 +1,4 @@
-package cryptobam.utils;
+package com.pluralsight.cryptobam;
 
 import com.cryptoboom.data.entities.CryptoCoinEntity;
 import com.fasterxml.jackson.core.type.TypeReference;
