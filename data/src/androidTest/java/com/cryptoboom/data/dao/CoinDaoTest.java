@@ -14,20 +14,17 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static com.cryptoboom.data.utils.CoinEntityGenerator.createRandomEntity;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
+import cryptobam.utils.CoinEntityMatcher;
+
+import static cryptobam.utils.CoinEntityGenerator.createRandomEntity;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
@@ -60,19 +57,6 @@ public class CoinDaoTest {
         cryptoDb.close();
     }
 
-    @Test
-    public void insertCoins() throws Exception {
-        CountDownLatch latch = new CountDownLatch(1);
-        List<CryptoCoinEntity> coins=createRandomCoins();
-        coinDao.getAllCoinsLive().observeForever(observer);
-        coinDao.insertCoins(coins);
-        latch.await(1, TimeUnit.SECONDS);
-        assertCoins(coinDao, coins);
-        verify(observer,atLeastOnce()).onChanged(argThat(new CryptoCoinEntityMatcher(coins)));
-
-
-
-    }
 
     private List<CryptoCoinEntity> createRandomCoins() {
         List<CryptoCoinEntity> coins = new ArrayList<>();
@@ -87,43 +71,23 @@ public class CoinDaoTest {
         CountDownLatch latch = new CountDownLatch(1);
         coinDao.getAllCoinsLive().observeForever(observer);
         coinDao.insertCoins(new ArrayList<>());
+        latch.await(50, TimeUnit.MILLISECONDS);
+        verify(observer).onChanged(empty);
+
+    }
+
+    @Test
+    public void insertCoins() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        List<CryptoCoinEntity> coins=createRandomCoins();
+        coinDao.getAllCoinsLive().observeForever(observer);
+        coinDao.insertCoins(coins);
         latch.await(1, TimeUnit.SECONDS);
-        verify(observer,atLeastOnce()).onChanged(empty);
+        verify(observer,atLeastOnce()).onChanged(argThat(new CoinEntityMatcher(coins)));
+
+
 
     }
 
 
-    //HELPER METHODS
-
-    private void assertCoins(CoinDao coinDao, List<CryptoCoinEntity> coins) {
-        List<CryptoCoinEntity> results = coinDao.getAllCoins();
-        assertNotNull(results);
-        assertEquals(NUM_OF_INSERT_COINS, results.size());
-        Iterator<CryptoCoinEntity> iter = coins.iterator();
-        int i = 0;
-        while (iter.hasNext())
-            assertTrue(areTheSame(iter.next(), results.get(i++)));
-    }
-
-    private boolean areTheSame(CryptoCoinEntity coin1, CryptoCoinEntity coin2) {
-        return (coin1.getId().compareTo(coin2.getId()) == 0);
-    }
-
-    public class CryptoCoinEntityMatcher implements ArgumentMatcher<List<CryptoCoinEntity>> {
-        private List<CryptoCoinEntity> coins;
-        public CryptoCoinEntityMatcher(List<CryptoCoinEntity> coins) {
-            this.coins = coins;
-        }
-
-        @Override
-        public boolean matches(List<CryptoCoinEntity> coins) {
-            if (coins.size()==0)
-                return true;
-            final int size=this.coins.size();
-            for (int i = 0; i < size; i++)
-                if(!(this.coins.get(i).getId().compareTo(coins.get(i).getId()) == 0))
-                    return false;
-            return true;
-        }
-    }
 }

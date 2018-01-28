@@ -10,7 +10,6 @@ import com.cryptoboom.data.entities.CryptoCoinEntity;
 import com.cryptoboom.data.mappers.CryptoMapper;
 import com.cryptoboom.data.models.CoinModel;
 import com.cryptoboom.data.repository.CryptoRepositoryImpl;
-import com.pluralsight.cryptobam.utils.CoinEntityGenerator;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static cryptobam.utils.CoinEntityGenerator.createRandomEntity;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
@@ -72,7 +72,7 @@ public class CryptoViewModelTest {
         List<CryptoCoinEntity> coins = new ArrayList<>();
         CryptoCoinEntity entity;
         for (int i = 0; i < NUM_OF_INSERT_COINS; i++) {
-            entity = CoinEntityGenerator.createRandomEntity();
+            entity = createRandomEntity();
             coins.add(entity);
         }
         return coins;

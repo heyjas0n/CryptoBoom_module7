@@ -30,11 +30,11 @@ public class CryptoMapper extends ObjectMapper {
     }
 
     @NonNull
-    public List<CoinModel> mapEntityToModel(List<CryptoCoinEntity> datum) {
+    public List<CoinModel> mapEntityToModel(List<CryptoCoinEntity> data) {
         final ArrayList<CoinModel> listData = new ArrayList<>();
         CryptoCoinEntity entity;
-        for (int i = 0; i < datum.size(); i++) {
-            entity = datum.get(i);
+        for (int i = 0; i < data.size(); i++) {
+            entity = data.get(i);
             listData.add(new CoinModel(entity.getName(), entity.getSymbol(),
                     String.format(CRYPTO_URL_PATH, entity.getId()),entity.getPriceUsd(),
                     entity.get24hVolumeUsd(), Double.valueOf(entity.getMarketCapUsd())));
@@ -43,13 +43,8 @@ public class CryptoMapper extends ObjectMapper {
         return listData;
     }
 
-    public String mapEntitiesToString(List<CryptoCoinEntity> data)
-    {
-        try {
+    public String mapEntitiesToString(List<CryptoCoinEntity> data) throws JsonProcessingException {
             return writeValueAsString(data);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        return null;
+
     }
 }
