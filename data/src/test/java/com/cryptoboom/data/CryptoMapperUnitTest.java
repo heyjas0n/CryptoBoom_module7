@@ -36,7 +36,7 @@ public class CryptoMapperUnitTest {
         CryptoMapper mapper = new CryptoMapper();
         List<CryptoCoinEntity> data = CoinEntityGenerator.createConstantCoinsDataSet(INPUT_FILE_PATH);
         List<CoinModel> dataModels = mapper.mapEntityToModel(data);
-        assert (compareEntitiesToModels(dataModels,data));
+        assertTrue(compareEntitiesToModels(dataModels,data));
     }
     private boolean compareEntitiesToModels(List<CoinModel> models, List<CryptoCoinEntity> entities)
     {

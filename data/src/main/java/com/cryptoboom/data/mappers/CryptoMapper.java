@@ -16,11 +16,10 @@ import java.util.List;
  */
 
 public class CryptoMapper extends ObjectMapper {
-    private final String CRYPTO_URL_PATH = "https://files.coinmarketcap.com/static/img/coins/128x128/%s.png";
-
+    private final String CRYPTO_URL_PATH =
+            "https://files.coinmarketcap.com/static/img/coins/128x128/%s.png";
     public ArrayList<CryptoCoinEntity> mapJSONToEntity(String jsonStr) {
         ArrayList<CryptoCoinEntity> data = null;
-
         try {
             data = readValue(jsonStr, new TypeReference<ArrayList<CryptoCoinEntity>>() {
             });
@@ -28,7 +27,6 @@ public class CryptoMapper extends ObjectMapper {
         }
         return data;
     }
-
     @NonNull
     public List<CoinModel> mapEntityToModel(List<CryptoCoinEntity> data) {
         final ArrayList<CoinModel> listData = new ArrayList<>();

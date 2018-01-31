@@ -37,7 +37,8 @@ public class CoinEntityGenerator {
     public static List<CryptoCoinEntity> createConstantCoinsDataSet(String filePath) throws IOException {
         ObjectMapper objMapper = new ObjectMapper();
         final String dataStr =readFile(filePath,Charset.defaultCharset());
-        final List<CryptoCoinEntity> data = objMapper.readValue(dataStr, new TypeReference<ArrayList<CryptoCoinEntity>>() {});
+        final List<CryptoCoinEntity> data =
+                objMapper.readValue(dataStr, new TypeReference<ArrayList<CryptoCoinEntity>>() {});
         return data;
     }
 
